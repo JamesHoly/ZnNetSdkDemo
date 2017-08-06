@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZN_demo", "ZN_demo\ZN_demo.csproj", "{CCC17D95-096F-4D23-A580-C72F8FDD1C20}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{CCC17D95-096F-4D23-A580-C72F8FDD1C20}.Debug|x86.ActiveCfg = Debug|x86
+		{CCC17D95-096F-4D23-A580-C72F8FDD1C20}.Debug|x86.Build.0 = Debug|x86
+		{CCC17D95-096F-4D23-A580-C72F8FDD1C20}.Release|x86.ActiveCfg = Release|x86
+		{CCC17D95-096F-4D23-A580-C72F8FDD1C20}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
