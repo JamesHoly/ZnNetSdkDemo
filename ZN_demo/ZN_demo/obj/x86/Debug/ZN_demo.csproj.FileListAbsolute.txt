@@ -1,0 +1,9 @@
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\bin\Debug\ZN_demo.exe
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\bin\Debug\ZN_demo.pdb
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\ZN_demo.Form1.resources
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\ZN_demo.Properties.Resources.resources
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\GenerateResource.read.1.tlog
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\GenerateResource.write.1.tlog
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\ZN_demo.exe
+D:\ZhiLianWangGuang\demo\ZN_demo\ZN_demo\obj\x86\Debug\ZN_demo.pdb
