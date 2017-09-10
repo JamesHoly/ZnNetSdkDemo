@@ -300,8 +300,9 @@ namespace ZLNetSDKDemo_CSharp
 
         // 二代配置，以下对应ZLNET_GetDevConfigEx和ZLNET_SetDevConfigEx接口
         public const int ZLNET_DEV_GATEWAYIPC_WORKMODE = 0x004A;            // 出入口相机工作参数(ZLNET_GATEWAY_CAMERA_WORKMODE)
-        public const int ZLNET_DEV_ALARM_RULE_CFG = 0x0100;                 // 报警规则参数(ZLNET_ALARM_RULE_CONFIG)，dwSubCommand填ZLNET_F6ALARM_TYPE
-        public const int ZLNET_DEV_VIDEOIN_CFG = 0x0101;                    // 视频输入前端选项(ZLNET_VIDEOIN_CONFIG)
+        public const int ZLNET_DEV_ALARM_RULE_CFG = 0x0100;                         // 报警规则参数(ZLNET_ALARM_RULE_CONFIG)，dwSubCommand填ZLNET_F6ALARM_TYPE
+        public const int ZLNET_DEV_VIDEOIN_CFG = 0x0101;                               // 视频输入前端选项(ZLNET_VIDEOIN_CONFIG)
+        public const int ZLNET_DEV_SMARTSENSOR_CFG = 0x0102;                     // 智能传感器配置（ZLNET_SMARTSENSOR_CONFIG）
 
         // 报警类型，对应ZLNET_StartListen接口
         public const int ZLNET_COMM_ALARM = 0x1100;                         // 常规报警(包括外部报警，视频丢失，动态检测)
@@ -1690,11 +1691,11 @@ namespace ZLNetSDKDemo_CSharp
         //码流回调订阅参数
         public enum ZLNET_MEDIA_TYPE_FLAG
         {
-            ZLNET_MEDIA_NORMAL= 0x0001,		                //正常流（私有混合流，需用我司解码库解码)
-	        ZLNET_MEDIA_VIDEO_ORIGINAL= 0x0002,		    //原始视频（如H264、H265，具体由设备本身决定）
-	        ZLNET_MEDIA_VIDEO_YUV420= 0x0004,		    //视频YUV
-	        ZLNET_MEDIA_AUDIO_PCM	= 0x0008,		        //音频PCM
-	        ZLNET_MEDIA_AUDIO_ORIGINAL= 0x0010,		//原始音频(如G711、AAC，具体由设备本身决定)
+            ZLNET_MEDIA_NORMAL = 0x0001,		                //私有混合流,带私有头（需用我司解码库解码)
+            ZLNET_MEDIA_VIDEO_ORIGINAL = 0x0002,		    //原始视频,不带私有头（如H264、H265，具体由设备本身决定）
+	        ZLNET_MEDIA_VIDEO_YUV420= 0x0004,		        //视频YUV
+	        ZLNET_MEDIA_AUDIO_PCM	= 0x0008,		            //音频PCM
+            ZLNET_MEDIA_AUDIO_ORIGINAL = 0x0010,		    //原始音频,不带私有头(如G711、AAC，具体由设备本身决定)
         }
 
         // 按文件回放高级参数，对应接口ZLNET_PlayBackByRecordFileV3
@@ -9694,7 +9695,7 @@ namespace ZLNetSDKDemo_CSharp
         public const int ZLNET_IVS_MAX_OBJECT_NUM = 32;                     // 物体个数上限
         public const int ZLNET_IVS_MAX_LINE_NUM = 32;                       // 折线个数上限
         public const int ZLNET_IVS_MAX_INFO_NUM = 8;                        // 通用信息最大个数
-        public const int ZLNET_IVS_MAX_ALGORITHM = 4;                       // 最大算法数
+        //public const int ZLNET_IVS_MAX_ALGORITHM = 4;                       // 最大算法数
         public const int ZLNET_MAX_STRLEN_512 = 512;                        // 通用字符串长度512
         public const int ZLNET_MAX_PICTYPE = 16;                            //
         public const int ZLNET_MAX_ALARMCAPS = 256;                         // 
@@ -9871,7 +9872,12 @@ namespace ZLNetSDKDemo_CSharp
             ZLNET_F6ALARM_ATM_SMASH,                  //人员打砸
 	        ZLNET_F6ALARM_ATM_TANKDOWN,               //防护舱倒地
 	        ZLNET_F6ALARM_ATM_BAGGAGE,                //防护舱丢包
-	        ZLNET_F6ALARM_ATM_GATHER,                 //防护舱多人
+            ZLNET_F6ALARM_ATM_GATHER,                   //防护舱多人聚集
+            ZLNET_F6ALARM_ATM_MULTIFACE,             //防护舱多人脸捕获
+            ZLNET_F6ALARM_ATM_FIGHT,                     //防护舱行为过激（打架）
+            ZLNET_F6ALARM_ATM_HIJACK,                   //防护舱人员挟持
+            ZLNET_F6ALARM_ATM_INVADE,                   //防护舱强行闯入
+            ZLNET_F6ALARM_ATM_FIRE,                         //防护舱纵火
         };
 
         // 时间
@@ -9954,7 +9960,7 @@ namespace ZLNetSDKDemo_CSharp
 
             public int nConfidence;		//置信度
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 222)]
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 220)]
             public byte[] szRes;
         };
 
@@ -9999,8 +10005,8 @@ namespace ZLNetSDKDemo_CSharp
         [StructLayoutAttribute(LayoutKind.Sequential)]
         public struct ZLNET_DETAIL_FLOW_STAT
         {
-            public int nForward;           //从左边穿越的人的个数
-            public int nBackward;          //从右边穿越的人的个数
+            public int nForward;            //正向（相对于规则箭头）的人的个数
+            public int nBackward;          //反向的人的个数
             public int nUpperLimit;        //设置的上限
         };
 
@@ -10071,11 +10077,11 @@ namespace ZLNetSDKDemo_CSharp
 
             public int firstColor;         //车辆主色 0:未知,1:蓝色,2:黄色,3:白色,4:黑色,5:红色
             public int secondColor;        //车辆次色
-            public double firstRate;          //主色比例
-            public double secondRate;         //次色比例
+            public float firstRate;          //主色比例
+            public float secondRate;         //次色比例
 
             public int lane;               //车道号
-            public double speed;              //车速 KM/H
+            public float speed;              //车速 KM/H
 
             public int shutter;            //快门值
             public int gain;               //增益值
@@ -10109,35 +10115,47 @@ namespace ZLNetSDKDemo_CSharp
 
         //物联网网关相关报警详细参数
         [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_DETAIL_NTR_STAT
+        public struct ZLNET_DETAIL_IOT_STAT
         {
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NOTE_LEN)]
-	        public string                   szSensorType;	//前端传感器类型
+            public int nStat;		//具体报警类型 0未知 1超过阈值上限 2低于阈值下限 3定值触发 4传感器断线
+            public int nSensorID;		//传感器ID
 
-	        public int                      nValueNum;		//valuePair个数
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+	        public string   szSensorType;	    //传感器类型
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32, ArraySubType = UnmanagedType.Struct)]
-	        public ZLNET_VALUE_PAIR[]       valuePair;	    //详细传感参数
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string   szSensorName;	    //传感器名称
+
+            //详细传感参数
+	        public int          nValueNum;		//valuePair个数
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 20, ArraySubType = UnmanagedType.Struct)]
+            public ZLNET_MEASURING_VALUE[]  valuePair;	    //详细传感参数
         };
 
         //键值对
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_VALUE_PAIR
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)]         // 4字节对齐
+        public struct ZLNET_MEASURING_VALUE
         {
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
-	        public string   szValueName;	//状态值名称
+            public string szPointID;	        //测点ID
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
-	        public string   szValueUnit;	//状态值单位
+            public string szPointName;	    //值名称
 
-	        public int      nValueType;	    //值类型 0整型,1浮点,2字符串 依此类型取下面的值
-	        public int      nValue;		    //整型值
-	        public float    fValue;		    //浮点值
+            public int      nValueType;	    //值类型 0整型,1浮点,2字符串,3布尔 按类型取下面不同的值
+            public int      nValue;		        //整型值,布尔值（0false 1ture)
+	        public double    fValue;		    //浮点值
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_MAX_STRING_LEN)]
-	        public string   szValue;	//字符串
+	        public string   szValue;	        //字符串
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32)]
+            public ZLNET_TIME_EX stTime;        //数据采集时间(仅查询时有效）
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string szValueUnit;	        //字符串
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
             public byte[] szRes;              //预留
         };
 
@@ -10252,6 +10270,8 @@ namespace ZLNetSDKDemo_CSharp
             [FieldOffset(0)]
             public ZLNET_DETAIL_PLATE_DETECTION plateDetection;              // 车牌检测
             [FieldOffset(0)]
+            public ZLNET_DETAIL_IOT_STAT iotStat;              // 物联网网关报警
+            [FieldOffset(0)]
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024 * 8)]
             public byte[] res;                         //union最大大小
         };
@@ -10335,10 +10355,13 @@ namespace ZLNetSDKDemo_CSharp
 
             public int nChannel;           //通道号
 
-            public ZLNET_TIME_EX timeStamp;          //时间戳暂时无效！需另作码流分析
+            //以下两个字段用于在不同的情况下与报警做对应
+            //实时情况下，一份视频可能同时对应多个报警，所以用timeStamp来区分
+            //而历史报警下载是针对某个报警单独进行的，所以用szIndex直接对应报警
+            public ZLNET_TIME_EX timeStamp;          //帧时间，仅bRealtime == 1时有效，年月日时分秒
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_INDEX_LEN)]
-            public string szIndex;            //事件索引,bRealtime == 0时有效，实时报警时不与特定报警对应
+            public string szIndex;            //事件索引,仅bRealtime == 0时有效
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.I4)]
             public int[] nRes;               //保留字段
@@ -10450,8 +10473,9 @@ namespace ZLNetSDKDemo_CSharp
             public int[] nRes;		    //预留
         };
 
+        //算法版本
         [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_ALGORITHM_VERSION_ONE
+        public struct ZLNET_ALGORITHM_VERSION
         {
             public int nMajor;			//主版本
             public int nMinor;			//次版本
@@ -10466,19 +10490,6 @@ namespace ZLNetSDKDemo_CSharp
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
             public byte[] szReserve;	    //预留;
-        };
-
-        //算法版本
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_ALGORITHM_VERSION
-        {
-            public int nAlgorithmNumber;		//stAlgorithms有效数量
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = ZLNET_IVS_MAX_ALGORITHM, ArraySubType = UnmanagedType.Struct)]
-            public ZLNET_ALGORITHM_VERSION_ONE[] stAlgorithms;
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 1024)]
-            public byte[] szReserve;	            //预留;
         };
 
         //新二代协议设备-报警模拟参数
@@ -11331,130 +11342,175 @@ namespace ZLNetSDKDemo_CSharp
         };
 
         // ---- 物联网网关相关 ----
-
-        public const int ZLNET_NTR_MAX_IO = 128;
-
-        //物联网网关IO类型
-        public enum ZLNET_NTR_IOTYPE
-        {
-            ZLNET_NTR_IOTYPE_ALARMOUT = 0,	//输出继电器(输出)
-            ZLNET_NTR_IOTYPE_ALARMIN,		//通用开关量(输入)
-            ZLNET_NTR_IOTYPE_ANALOG,		//通用模拟量
-            ZLNET_NTR_IOTYPE_SMARTSENSOR,	//智能传感器
-            ZLNET_NTR_IOTYPE_PASSTHROUGH,	//传感器透传（信号转发至服务器）
-
-            ZLNET_NTR_IOTYPE_TOTAL,
-        };
-
-        //物联网网关IO状态
+        //智能传感器配置
         [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_STATE_ALARMOUT
+        public struct ZLNET_SMARTSENSOR_CONFIG
         {
-            public int nState;	//0默认状态 1触发状态
-        };
-
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_STATE_ALARMIN
-        {
-            public int nState;	//0默认状态 1触发状态
-        };
-
-        //NTR模拟量状态
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_STATE_ANALOG
-        {
-	        public int                      nState;		//0：断线 1：在线 2：报警
-	        public int                      nValueNum;	//value个数
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.Struct)]
-	        public ZLNET_VALUE_PAIR[]       value;	//模拟量参数
-        };
-
-        //NTR智能传感器状态
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_STATE_SMARTSENSOR
-        {
-	        public int                  nID;		//设备ID
-	        public int                  nEnable;	//使能
-	        public int                  nAddr;		//地址位
-	        public int                  nState;		//0：断线 1：在线 2：报警
+            public int                  nEnable;	    //使能 0不使能  1使能
+            public int                  nRefreshInterval;		//刷新时间间隔
+            public int                  nChannel;		//通道号（对于不同的传感器，通道号有不同的意义）
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
-	        public string               szSensorType;	        //前端传感器类型,常见的如"ModbusTH"
+            public string               szSensorName;	        //名称
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
-	        public string               szPortType;	        //接口类型,常见的如"RS485"、"RS232"、"RJ45"
-
-	        public int                  nValueNum;	    //value个数
-
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32, ArraySubType = UnmanagedType.Struct)]
-	        public ZLNET_VALUE_PAIR[]   value;	        //详细传感参数
-        };
-
-        //NTR传感器透传状态
-        [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_STATE_PASSTHROUGH
-        {
-	        public int      nID;		//设备ID,一个串口下可能有多个IO设备
-	        public int      nEnable;	//使能
-	        public int      nAddr;		//地址位
+            public string               szSensorType;	        //传感器类型,例如"ModbusTH"
 
             [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
-	        public string               szPortType;	        //接口类型,常见的如"RS485"、"RS232"、"RJ45"
+            public string               szPortType;	        //接口类型,例如"RS485"、"RS232"、"RJ45"
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string               szProtocol;	        //协议类型,例如"THProtocol"温湿度协议
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string               szFactory;	        //传感器厂商
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string               szModel;	        //传感器型号
+
+	        public int                    nValueNum;	    //value个数
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_MAX_IP_LEN)]
+            public string               szIP;	                //网口地址
+
+            public int                      nPort;	            //端口
+            public int                      nAddr;		    //串口地址
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
-	        public byte[]   szData;
+            public byte[]               szRes;              //预留
         };
 
         [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_IODEVICE
+        public struct STRUCT_POINT_NAME
         {
-	        public int                  nChannel;	//通道号
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string szName;
+        }
 
-            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_MAX_STRING_LEN)]
-	        public string               szName;	    //名称
+        //取传感器列表
+        [StructLayoutAttribute(LayoutKind.Sequential)]
+        public struct ZLNET_SENSOR_DEVICE
+        {
+            public int      nSensorID;		        //传感器ID，是传感器的唯一标识符
+            public int      nPointCounts;		    //下辖测点数量
 
-	        public ZLNET_NTR_IOTYPE     nType;		//类型
+            public int      nSubDeviceNum;		//下辖子设备数量
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 4096)]
-            public byte[]               szUnion;		//状态，nType不同时，取下面不同的结构体
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 64, ArraySubType = UnmanagedType.Struct)]
+            public STRUCT_POINT_NAME[]  szSubDevice;	            // 子设备列表
 
-            //ZLNET_NTR_STATE_ALARMOUT    alarmout;		//nType == ZLNET_NTR_IOTYPE_ALARMOUT
-            //ZLNET_NTR_STATE_ALARMIN     alarmin;		//nType == ZLNET_NTR_IOTYPE_ALARMIN
-            //ZLNET_NTR_STATE_ANALOG      analog;		//nType == ZLNET_NTR_IOTYPE_ANALOG
-            //ZLNET_NTR_STATE_SMARTSENSOR smartsensor;	//nType == ZLNET_NTR_IOTYPE_SMARTSENSOR
-            //ZLNET_NTR_STATE_PASSTHROUGH passthrough;	//nType == ZLNET_NTR_IOTYPE_PASSTHROUGH
-            
+            public int      nChannel;	            //通道号（对于不同的传感器，通道号有不同的意义）
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string szSensorName;	        //名称
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string           szSensorType;	        //传感器类型,常见的如"TH"
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string           szPortType;	            //接口类型,常见的如"RS485"、"RS232"、"RJ45"
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 2048)]
+            public byte[]           szRes;
+        };
+
+        //测点数据结构查询条件
+        [StructLayoutAttribute(LayoutKind.Sequential)]
+        public struct ZLNET_MEASURINGPOINT_QUERY
+        {
+            public int            nSensorID;	            //测点所属的传感器ID
+
+            public int            bSpecifyName;	        //是否指定测点名称,支持模糊查找
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.Struct)]
+            public STRUCT_POINT_NAME[] szPointName;	            // 指定要查询的测点名称（支持模糊查找）,bQueryByName==1时有效
+
+            public int            bSpecifyIndex;	        //是否指定测点序号,例如某传感器下辖100个测点，则序号为0-99
+            public int            nMinIndex;	            //序号范围，bQueryByIndex==1时有效
+            public int            nMaxIndex;	            //序号范围，bQueryByIndex==1时有效
+
+            public int            bSpecifySubDevice;		//是否指定子设备
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16, ArraySubType = UnmanagedType.Struct)]
+            public STRUCT_POINT_NAME[]      szSubDevice;	            // 指定子设备,bSpecifySubDevice==1时有效
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 512)]
+            public byte[]       szRes;                      //预留
+        };
+
+        //测点数据结构
+        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi, Pack = 4)] // 4字节对齐
+        public struct ZLNET_MEASURING_POINT
+        {
+            public int           nSensorID;	         //测点所属的传感器ID
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string       szPointID;	            //测点ID，具备唯一性
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string       szPointName;        //测点名称
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NAME_LEN)]
+            public string       szValueUnit;	         //测点值单位
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = ZLNET_IVS_MAX_NOTE_LEN)]
+            public string       szDescription;	         //测点描述
+
+            public int              nRWMode;                 //测点读写模式 1只读 2只写 3读写
+            public int              nValueType;                //值类型 0整型,1浮点,2字符串,3布尔
+            public int              nRangeType;              //取值范围类型 0不限制 1单个 2连续 3离散
+            public double       nMinValue;                 //最小值
+            public double       nMaxValue;                //最大值
+
+            [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 256)]
+            public string         szDiscreteRange;	         //nRangeType == 3 时的离散描述
+
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-	        public byte[]               szRes;      //预留
+            public byte[] szRes;                    //预留
         };
 
-        //物联网网关IO设备列表
+        //传感器【实时】测点值查询条件
         [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_IOLIST
+        public struct ZLNET_MEASURING_VALUE_QUERY
         {
-	        public int                      nNum;	    //stList有效数量
+            public int              nSensorID;	         //测点所属的传感器ID
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = ZLNET_NTR_MAX_IO, ArraySubType = UnmanagedType.Struct)]
-	        public ZLNET_NTR_IODEVICE[]     stList;
+            public int              nMethod;            //预留
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32, ArraySubType = UnmanagedType.Struct)]
+            public STRUCT_POINT_NAME[]      szPointID;	            // 要查询的测点ID，一次可查询多个，也可只查一个
+
+            public int              nPointIDNum;          //szPointID有效个数
 
             [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
-	        public byte[]                   szRes;      //预留
+	        public byte[]         szRes;                    //预留
         };
 
-        //物联网网关相关查历史事件记录参数
+        //传感器【历史】测点值查询条件
         [StructLayoutAttribute(LayoutKind.Sequential)]
-        public struct ZLNET_NTR_QUERY_PARAM
+        public struct ZLNET_MEASURING_HISTORY_QUERY
         {
-	        public int          nChannel;		//通道号，或智能传感器的ID号， -1表示查询所有
-	        public int          nEventType;		//事件类型，参考ZLNET_F6ALARM_TYPE，-1表示查询所有类型
-	        public int          nActionType;	//查询的事件行为 0:报警事件, 1:普通数据
+            public int nSensorID;		        //测点所属的传感器ID
 
-	        public ZLNET_TIME   stBegin;		//开始时间
-	        public ZLNET_TIME   stEnd;		    //结束时间
+            public ZLNET_TIME_EX stBegin;       //开始时间
+            public ZLNET_TIME_EX stEnd;          //结束时间
 
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-	        public byte[]       szRes;		    //预留
+            public int nMethod;		        //0按测点ID查询 1按测点名称查询（支持模糊查找）
+
+            //以下nMethod == 0时有效
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32, ArraySubType = UnmanagedType.Struct)]
+            public STRUCT_POINT_NAME[] szPointID;	            //测点ID，一次可最多指定32个，nPointIDNum需填写实际个数
+
+            public int nPointIDNum;		                                //szPointID有效个数
+
+            //以下nMethod == 1时有效
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 32, ArraySubType = UnmanagedType.Struct)]
+            public STRUCT_POINT_NAME[] szPointKey;	        //测点名称，一次可最多指定32个，nPointKeyNum需填写实际个数
+
+            public int nPointKeyNum;		                            //szPointKey有效个数
+
+            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 128)]
+	        public byte[]     szRes;		    //预留
         };
         // ---- 物联网网关相关 END ----
 
@@ -12303,7 +12359,7 @@ namespace ZLNetSDKDemo_CSharp
         [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_QueryRecordFile",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int ZLNET_QueryRecordFile(int lLoginID, int nChannelId, int nRecordFileType,
-            ref ZLNET_TIME tmStart, ref ZLNET_TIME tmEnd, string pchCardid, ref ZLNET_RECORDFILE_INFO nriFileinfo,
+            ref ZLNET_TIME tmStart, ref ZLNET_TIME tmEnd, string pchCardid, IntPtr nriFileinfo,
             int maxlen, ref int filecount, int waittime = 1000, int bTime = 0);
 
         // 查询最早录像时间
@@ -14270,7 +14326,7 @@ namespace ZLNetSDKDemo_CSharp
         // 查询算法版本（针对智能设备）
         [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_F6_GetAlgoVersion",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern int ZLNET_F6_GetAlgoVersion(int lLoginID, ref ZLNET_ALGORITHM_VERSION pVer, int nTimeOut = 3000);
+        public static extern int ZLNET_F6_GetAlgoVersion(int lLoginID, ref ZLNET_ALGORITHM_VERSION pVer, int nVerNum, ref int nRetNum, int nTimeOut = 3000);
 
         // 模拟报警
         [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_F6_SimulateAlarm",
@@ -14297,15 +14353,36 @@ namespace ZLNetSDKDemo_CSharp
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int ZLNET_F6_QueryGatewayList(int lLoginID, int nListType, ref ZLNET_GATEWAY_CAMERA_QUERY pQuery, ref ZLNET_GATEWAY_CAMERA_RECORD pResult, int nMaxCount, ref int nRetCount, int nTimeOut = 3000);
 
-        //NTR获取IO设备列表
-        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_NTR_GetIOList",
+        ///////////////////////////////////////物联网网关///////////////////////////////////
+
+        //物联网网关获取传感器列表，未使能的传感器将取不到
+        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_QuerySensorDevice",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern int ZLNET_NTR_GetIOList(int lLoginID, ZLNET_NTR_IOTYPE nType, ref ZLNET_NTR_IOLIST pParam, int nTimeOut = 3000);
+        //pBuf对应结构体为ZLNET_SENSOR_DEVICE
+        public static extern int ZLNET_QuerySensorDevice(int lLoginID, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
+
+        //物联网网关获取测点列表
+        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_QueryMeasuringPoint",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        //pBuf对应结构体为ZLNET_MEASURING_POINT
+        public static extern int ZLNET_QueryMeasuringPoint(int lLoginID, ref ZLNET_MEASURINGPOINT_QUERY pParam, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
+
+        //物联网网关获取测值
+        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_GetMeasuringValue",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        //pBuf对应结构体为ZLNET_MEASURING_VALUE
+        public static extern int ZLNET_GetMeasuringValue(int lLoginID, ref ZLNET_MEASURING_VALUE_QUERY pParam, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
+
+        //物联网网关写测值（针对可写型测点）
+        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_SetMeasuringValue",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern int ZLNET_SetMeasuringValue(int lLoginID, int nSensorID, ref ZLNET_MEASURING_VALUE pValue, int nTimeOut = 3000);
 
         //NTR获取历史记录及历史报警
-        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_NTR_GetHistoryData",
+        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_GetHistoryMeasuringValue",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern int ZLNET_NTR_GetHistoryData(int lLoginID, ref ZLNET_NTR_QUERY_PARAM param, ref ZLNET_NEWF6_ALARM pBuf, int nMaxCount, IntPtr nRetCount, int nTimeOut = 5000);
+        //pBuf对应结构体为ZLNET_MEASURING_VALUE
+        public static extern int ZLNET_GetHistoryMeasuringValue(int lLoginID, ref ZLNET_MEASURING_HISTORY_QUERY pParam, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
 
         /////////////////////////////////////NVD/////////////////////////////////////
 
@@ -14426,6 +14503,11 @@ namespace ZLNetSDKDemo_CSharp
         [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_NVD_TourControl",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int ZLNET_NVD_TourControl(int lLoginID, string pScreenID, int nCmd);
+
+        //获取轮巡暂停状态(bPaused)
+        [DllImport("zlnetsdk.dll", EntryPoint = "ZLNET_NVD_IsTourPaused",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern int ZLNET_NVD_IsTourPaused(int lLoginID, string pScreenID, ref int bPaused);
 
 
         #endregion
@@ -16634,7 +16716,7 @@ namespace ZLNetSDKDemo_CSharp
         // 查询算法版本（针对智能设备）
         [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_F6_GetAlgoVersion",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern int ZLNET_F6_GetAlgoVersion(int lLoginID, ref ZLNET_ALGORITHM_VERSION pVer, int nTimeOut = 3000);
+        public static extern int ZLNET_F6_GetAlgoVersion(int lLoginID, ref ZLNET_ALGORITHM_VERSION pVer, int nVerNum, ref int nRetNum, int nTimeOut = 3000);
 
         // 模拟报警
         [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_F6_SimulateAlarm",
@@ -16661,15 +16743,36 @@ namespace ZLNetSDKDemo_CSharp
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int ZLNET_F6_QueryGatewayList(int lLoginID, int nListType, ref ZLNET_GATEWAY_CAMERA_QUERY pQuery, ref ZLNET_GATEWAY_CAMERA_RECORD pResult, int nMaxCount, ref int nRetCount, int nTimeOut = 3000);
 
-        //NTR获取IO设备列表
-        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_NTR_GetIOList",
-        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern int ZLNET_NTR_GetIOList(int lLoginID, ZLNET_NTR_IOTYPE nType, ref ZLNET_NTR_IOLIST pParam, int nTimeOut = 3000);
+         ///////////////////////////////////////物联网网关///////////////////////////////////
 
-        //NTR获取历史记录及历史报警
-        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_NTR_GetHistoryData",
+        //物联网网关获取传感器列表，未使能的传感器将取不到
+        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_QuerySensorDevice",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
-        public static extern int ZLNET_NTR_GetHistoryData(int lLoginID, ref ZLNET_NTR_QUERY_PARAM param, ref ZLNET_NEWF6_ALARM pBuf, int nMaxCount, IntPtr nRetCount, int nTimeOut = 5000);
+        //pBuf对应结构体为ZLNET_SENSOR_DEVICE
+        public static extern int ZLNET_QuerySensorDevice(int lLoginID, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
+
+        //物联网网关获取测点列表
+        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_QueryMeasuringPoint",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        //pBuf对应结构体为ZLNET_MEASURING_POINT
+        public static extern int ZLNET_QueryMeasuringPoint(int lLoginID, ref ZLNET_MEASURINGPOINT_QUERY pParam, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
+
+        //物联网网关获取测值
+        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_GetMeasuringValue",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        //pBuf对应结构体为ZLNET_MEASURING_VALUE
+        public static extern int ZLNET_GetMeasuringValue(int lLoginID, ref ZLNET_MEASURING_VALUE_QUERY pParam, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
+
+        //物联网网关写测值（针对可写型测点）
+        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_SetMeasuringValue",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern int ZLNET_SetMeasuringValue(int lLoginID,  int nSensorID, ref ZLNET_MEASURING_VALUE pValue, int nTimeOut = 3000);
+
+         //NTR获取历史记录及历史报警
+        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_GetHistoryMeasuringValue",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        //pBuf对应结构体为ZLNET_MEASURING_VALUE
+        public static extern int ZLNET_GetHistoryMeasuringValue(int lLoginID, ref ZLNET_MEASURING_HISTORY_QUERY pParam, IntPtr pBuf, int nBufNum, ref int nRetNum, int nTimeOut = 3000);
 
         /////////////////////////////////////NVD/////////////////////////////////////
 
@@ -16790,6 +16893,11 @@ namespace ZLNetSDKDemo_CSharp
         [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_NVD_TourControl",
         CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
         public static extern int ZLNET_NVD_TourControl(int lLoginID, string pScreenID, int nCmd);
+
+        //获取轮巡暂停状态(bPaused)
+        [DllImport("libzlnetsdk.so", EntryPoint = "ZLNET_NVD_IsTourPaused",
+        CharSet = CharSet.Ansi, CallingConvention = CallingConvention.StdCall)]
+        public static extern int ZLNET_NVD_IsTourPaused(int lLoginID, string pScreenID, ref int bPaused);
 
 
         #endregion
