@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Runtime.InteropServices;
 
-namespace ZLNetSDKDemo_CSharp
+namespace ZN_demo
 {
     public class Zlnetsdk
     {
