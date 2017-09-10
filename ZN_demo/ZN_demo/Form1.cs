@@ -152,11 +152,14 @@ namespace ZN_demo
         /// <param name="e"></param>
         private void button5_Click(object sender, EventArgs e)
         {
+            //0表示232   1表示485
             int RS485 = 1;
             uint baudrate9600 = 4;
             uint databits = 8;
             uint stopbits = 1;
+            //1表示ODD   2表示EVEN   3表示NONE
             uint parity_none = 3;
+            //用户数据
             IntPtr intPtr = IntPtr.Zero;
             lTransComChannel = Zlnetsdk.ZLNET_CreateTransComChannel(loginId, RS485, baudrate9600, databits, stopbits, parity_none, fZLTransComCallBack, intPtr);
             MessageBox.Show("创建透明通道返回值：" + lTransComChannel);
@@ -164,7 +167,7 @@ namespace ZN_demo
 
         private void fZLTransComCallBack(int lLoginID, int lTransComChannel, IntPtr pBuffer, UInt32 dwBufSize, IntPtr dwUser)
         {
-            MessageBox.Show("");
+            MessageBox.Show("串口返回的数据长度：" + dwBufSize);
         }
 
         /// <summary>
